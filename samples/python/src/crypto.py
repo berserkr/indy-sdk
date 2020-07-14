@@ -76,7 +76,7 @@ async def demo():
     assert verifier['signer_verkey'] == verkey
     assert message == decrypted_message.decode("utf-8")
 
-    logger.info('Verkey={}, message={}'.format(verkey, decrypted_message)
+    logger.info('Verkey={}, message={}'.format(verkey, decrypted_message))
 
     # 6. Close and delete Signer wallet
     await wallet.close_wallet(signer['wallet'])
