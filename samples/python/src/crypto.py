@@ -31,14 +31,22 @@ async def demo():
     await wallet.create_wallet(signer['wallet_config'], signer['wallet_credentials'])
     signer['wallet'] = await wallet.open_wallet(signer['wallet_config'], signer['wallet_credentials'])
 
+    logger.info(signer['wallet'])
+
     await wallet.create_wallet(verifier['wallet_config'], verifier['wallet_credentials'])
     verifier['wallet'] = await wallet.open_wallet(verifier['wallet_config'], verifier['wallet_credentials'])
+
+    logger.info(verifier['wallet'])
 
     # 2. Signer Create DID
     (signer['did'], signer['verkey']) = await did.create_and_store_my_did(signer['wallet'], "{}")
 
+    logger.info((signer['did'], signer['verkey']))
+
     # 3. Verifier Create DID
     (verifier['did'], verifier['verkey']) = await did.create_and_store_my_did(verifier['wallet'], "{}")
+
+    logger.info((verifier['did'], verifier['verkey']))
 
     signer['verifier_did'] = verifier['did']
     signer['verifier_verkey'] = verifier['verkey']
@@ -59,11 +67,15 @@ async def demo():
         await crypto.auth_crypt(signer['wallet'], signer['verkey'], signer['verifier_verkey'], message.encode('utf-8'))
     verifier['encrypted_message'] = signer['encrypted_message']
 
+    logger.info(verifier['encrypted_message'])
+
     # 5. Verifier decrypt message
     verkey, decrypted_message = \
         await crypto.auth_decrypt(verifier['wallet'], verifier['verkey'], verifier['encrypted_message'])
     assert verifier['signer_verkey'] == verkey
     assert message == decrypted_message.decode("utf-8")
+
+    logger.info(verkey, decrypted_message)
 
     # 6. Close and delete Signer wallet
     await wallet.close_wallet(signer['wallet'])
