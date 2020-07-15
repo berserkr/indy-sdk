@@ -12,6 +12,7 @@ from src.utils import run_coroutine, PROTOCOL_VERSION
 
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
 async def demo():
@@ -50,6 +51,8 @@ async def demo():
     issuer['schema_id'], issuer['schema'] = await anoncreds.issuer_create_schema(issuer['did'], schema['name'],
                                                                                  schema['version'],
                                                                                  schema['attributes'])
+    logger.info('Issuer schema id = {}, schema = {}'.format(issuer['schema_id'], issuer['schema']))
+
     store[issuer['schema_id']] = issuer['schema']
 
     # 4. Issuer create Credential Definition for Schema
@@ -62,8 +65,12 @@ async def demo():
         issuer['wallet'], issuer['did'], issuer['schema'], cred_def['tag'], cred_def['type'], cred_def['config'])
     store[issuer['cred_def_id']] = issuer['cred_def']
 
+    logger.info('Cred def id = {}, cred def = {}'.format(issuer['cred_def_id'], issuer['cred_def']))
+
     # 5. Prover create Master Secret
     prover['master_secret_id'] = await anoncreds.prover_create_master_secret(prover['wallet'], None)
+
+    logger.info('Master secret id = {}'.format(prover['master_secret_id']))
 
     #  6. Issuer create Credential Offer
     issuer['cred_offer'] = await anoncreds.issuer_create_credential_offer(issuer['wallet'], issuer['cred_def_id'])
@@ -75,6 +82,9 @@ async def demo():
 
     prover['cred_def'] = store[prover['cred_def_id']]
     prover['schema'] = store[prover['schema_id']]
+
+    logger.info('Offer = {}, prover cred def id = {}, schema id = {}, cred def = {}, schema = {}'.format(cred_offer, \
+        cred_offer['cred_def_id'], cred_offer['schema_id'], store[prover['cred_def_id']], store[prover['schema_id']]))
 
     # 7. Prover create Credential Request
     prover['cred_req'], prover['cred_req_metadata'] = \
@@ -94,6 +104,7 @@ async def demo():
     (cred_json, _, _) = await anoncreds.issuer_create_credential(issuer['wallet'], issuer['cred_offer'],
                                                                  issuer['cred_req'], issuer['cred_values'], None, None)
     prover['cred'] = cred_json
+    logger.info('Credential = {}'.format(cred_json))
 
     # 9. Prover store Credential
     await anoncreds.prover_store_credential(prover['wallet'], None, prover['cred_req_metadata'], prover['cred'],
@@ -113,6 +124,7 @@ async def demo():
         }
     })
     prover['proof_req'] = verifier['proof_req']
+    logger.info('Proof req = {}'.format(prover['proof_req']))
 
     # Prover gets Credentials for Proof Request
     prover['cred_search_handle'] = \
