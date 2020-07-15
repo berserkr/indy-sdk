@@ -140,6 +140,8 @@ async def demo():
                                                                                   'predicate1_referent', 10)
     prover['cred_for_predicate1'] = json.loads(creds_for_predicate1)[0]['cred_info']
 
+    logger.info('Attr1 = {} and Pred1 = {}'.format(prover['cred_for_attr1'], prover['cred_for_predicate1']))
+
     await anoncreds.prover_close_credentials_search_for_proof_req(prover['cred_search_handle'])
 
     # 11. Prover create Proof for Proof Request
@@ -157,6 +159,8 @@ async def demo():
                                                           prover['requested_creds'],
                                                           prover['master_secret_id'], schemas_json, cred_defs_json,
                                                           revoc_states_json)
+    logger.info('Proof = {}'.format(prover['proof']))
+    
     verifier['proof'] = prover['proof']
 
     # 12. Verifier verify proof
